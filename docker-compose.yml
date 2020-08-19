@@ -17,3 +17,10 @@ services:
     depends_on:
       - rabbitmq
       - redis
+  celerybeat:
+    build: .
+    depends_on:
+      - rabbitmq
+      - redis
+      - celery
+    entrypoint: ["celery", "-A", "aviata.celery_app", "beat", "--loglevel=info"]
