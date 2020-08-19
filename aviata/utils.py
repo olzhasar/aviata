@@ -50,17 +50,17 @@ def get_cheapest_flight(
 
 def verify_flight_not_changed(booking_token: str, pnum: int = 1, bnum: int = 1):
     params = {
-        "affily": settings.AFFILY,
+        "affily": Settings.AFFILY,
         "booking_token": booking_token,
         "pnum": pnum,
         "bnum": bnum,
     }
 
-    res = requests.get(settings.FLIGHT_CHECK_URL, params=params)
+    res = requests.get(Settings.FLIGHT_CHECK_URL, params=params)
 
     data = res.json()
 
-    if not data["flights_checked"]:
+    if not data.get("flights_checked"):
         raise CheckInProgress
 
     if data["flights_invalid"] or data["price_change"]:
@@ -92,7 +92,7 @@ def get_flights_from_cache(date: str = ""):
         key = _key.decode("utf-8")
         price_key = key.replace("token", "price")
 
-        token = cache.get(key)
+        token = cache.get(key).decode("utf-8")
         price = float(cache.get(price_key))
 
         flights.append(
