@@ -24,3 +24,14 @@ services:
       - redis
       - celery
     entrypoint: ["celery", "-A", "aviata.celery_app", "beat", "--loglevel=info"]
+  web:
+    build: .
+    depends_on:
+      - rabbitmq
+      - redis
+      - celery
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=main.py
+    entrypoint: ["flask", "run", "--host=0.0.0.0"]
