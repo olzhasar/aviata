@@ -4,4 +4,4 @@ class Settings:
     PARTNER = "picky"
     AFFILY = "picky_kz"
     FLIGHT_CHECK_DELAY = 5
-    CELERY_BROKER_URL = 'amqp://aviata:aviata@localhost:5672//'
+    CELERY_BROKER_URL = 'amqp://aviata:aviata@rabbitmq:5672//'
