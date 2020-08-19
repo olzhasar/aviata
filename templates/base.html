@@ -1,22 +1,46 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
   <head>
-    <meta charset="UTF-8">
-    <title>Aviata flight cache management system</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      Aviata flight cache management system
+    </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
   </head>
   <body>
+    <section class="section">
+      <div class="container">
+	<h1 class="title">
+	  Aviata flight cache management system
+	</h1>
 
-    <form action="/", method="GET">
-      <label for="date">Enter date in %d/%m/%Y format</label>
-      <input type="text" id="date" name="date"><br><br>
-      <input type="submit" value="Submit">
-    </form>
+	<form action="/", method="GET">
+	  <div class="field">
+	    <label class="label">Enter date in %d/%m/%Y format</label>
+	    <div class="control">
+	      <input id="date" name="date" class="input" type="text" placeholder="12/09/2020">
+	    </div>
+	  </div>
 
-    <a href="/update">Load flights</a>
-    <a href="/check">Check validity and update all flights</a>
+	  <div class="field is-grouped">
+	    <div class="control">
+	      <button class="button is-primary">Filter cached flights</button>
+	    </div>
+	  </div>
+	</form>
 
-    {% block content %}
-    {% endblock %}
+	<hr>
+	
+	<a class="button is-success" href="/update">Load flights</a>
+	<a class="button is-warning" href="/check">Check validity and update all flights</a>
 
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+	{% block content %}{% endblock %}
+      </div>
+    </section>
   </body>
 </html>
