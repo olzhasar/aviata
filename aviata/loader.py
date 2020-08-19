@@ -4,26 +4,21 @@ from typing import List, Optional
 import requests
 
 from .exceptions import FlightAPIUnavailable, NoFlightsFound
-
-FLIGHT_SEARCH_URL = "https://api.skypicker.com/flights"
-FLIGHT_CHECK_URL = "https://booking-api.skypicker.com/api/v0.1/check_flights"
-PARTNER = "picky"
-AFFILY = "picky_kz"
-FLIGHT_CHECK_DELAY = 5
+from .settings import Settings
 
 
 def get_flights(
     fly_from: str, fly_to: str, date_from: str, date_to: Optional[str] = None
 ):
     params = {
-        "partner": PARTNER,
+        "partner": Settings.PARTNER,
         "fly_from": fly_from,
         "fly_to": fly_to,
         "date_from": date_from,
         "date_to": date_to,
     }
 
-    res = requests.get(FLIGHT_SEARCH_URL, params=params)
+    res = requests.get(Settings.FLIGHT_SEARCH_URL, params=params)
 
     if res.status_code != 200:
         raise FlightAPIUnavailable(res.text)
@@ -52,14 +47,14 @@ def get_cheapest_flight(
 
 def check_flight(booking_token: str, pnum: int = 1, bnum: int = 1):
     params = {
-        "affily": AFFILY,
+        "affily": settings.AFFILY,
         "booking_token": booking_token,
         "pnum": pnum,
         "bnum": bnum,
     }
 
     while True:
-        res = requests.get(FLIGHT_CHECK_URL, params=params)
+        res = requests.get(settings.FLIGHT_CHECK_URL, params=params)
 
         data = res.json()
 
@@ -67,10 +62,10 @@ def check_flight(booking_token: str, pnum: int = 1, bnum: int = 1):
             break
 
         print(
-            f"Flight checking has not finished yet. Retrying in {FLIGHT_CHECK_DELAY}"
-            " secs"
+            "Flight checking has not finished yet. Retrying in"
+            f" {settings.FLIGHT_CHECK_DELAY} secs"
         )
 
-        time.sleep(FLIGHT_CHECK_DELAY)
+        time.sleep(settings.FLIGHT_CHECK_DELAY)
 
     return res.json()
