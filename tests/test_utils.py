@@ -1,7 +1,7 @@
 import pytest
 import requests
 from aviata.exceptions import FlightAPIUnavailable, NoFlightsFound
-from aviata.loader import get_flights, select_cheapest_flight
+from aviata.utils import get_flights, select_cheapest_flight
 
 
 class MockFailedResponse:
