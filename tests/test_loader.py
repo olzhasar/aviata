@@ -1,0 +1,63 @@
+import pytest
+import requests
+from exceptions import FlightAPIUnavailable, NoFlightsFound
+from loader import get_flights
+
+TEST_DATA = [
+    {"price": 20, "booking_token": "first"},
+    {"price": 30, "booking_token": "second"},
+    {"price": 11, "booking_token": "third"},
+]
+
+
+class MockFailedResponse:
+    status_code = 500
+
+    @property
+    def text():
+        return "API is unavailable. Sorry for inconvinience"
+
+
+class MockSuccessfulResponse:
+    status_code = 200
+    test_data = TEST_DATA
+
+    @classmethod
+    def json(cls):
+        return {"data": cls.test_data}
+
+
+class MockSuccessfulBlankResponse(MockSuccessfulResponse):
+    test_data = []
+
+
+def test_get_flights_success(monkeypatch):
+    def mock_get(*args, **kwargs):
+        return MockSuccessfulResponse
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    flights = get_flights("ALA", "TSE", "14/09/2020")
+
+    assert isinstance(flights, list)
+    assert len(flights) == len(TEST_DATA)
+
+
+def test_get_flights_fail(monkeypatch):
+    def mock_get(*args, **kwargs):
+        return MockFailedResponse
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    with pytest.raises(FlightAPIUnavailable):
+        flights = get_flights("ALA", "TSE", "14/09/2020")
+
+
+def test_get_flights_blank(monkeypatch):
+    def mock_get(*args, **kwargs):
+        return MockSuccessfulBlankResponse
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    with pytest.raises(NoFlightsFound):
+        flights = get_flights("ALA", "TSE", "14/09/2020")
