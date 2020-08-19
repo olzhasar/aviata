@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <title>Aviata flight cache management system</title>
+  </head>
+  <body>
+
+    <form action="/", method="GET">
+      <label for="date">Enter date in %d/%m/%Y format</label>
+      <input type="text" id="date" name="date"><br><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <a href="/update">Load flights</a>
+    <a href="/check">Check validity and update all flights</a>
+
+    {% block content %}
+    {% endblock %}
+
+  </body>
+</html>

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Flights cached:</h1>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Price (EUR)</th>
+    <th>Booking Token</th>
+  </tr>
+  {% for flight in flights %}
+  <tr>
+    <td>{{ flight.date_from }}</td>
+    <td>{{ flight.fly_from }}</td>
+    <td>{{ flight.fly_to }}</td>
+    <td>{{ flight.price }}</td>
+    <td>{{ flight.booking_token }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+
+{% endblock %}
