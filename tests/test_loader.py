@@ -1,7 +1,7 @@
 import pytest
 import requests
-from exceptions import FlightAPIUnavailable, NoFlightsFound
-from loader import get_flights, select_cheapest_flight
+from aviata.exceptions import FlightAPIUnavailable, NoFlightsFound
+from aviata.loader import get_flights, select_cheapest_flight
 
 
 class MockFailedResponse:
@@ -64,12 +64,7 @@ def test_get_flights_blank(monkeypatch):
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        (
-            [
-                {"price": 20, "booking_token": "A"},
-            ],
-            "A",
-        ),
+        ([{"price": 20, "booking_token": "A"},], "A",),
         (
             [
                 {"price": 20, "booking_token": "A"},
