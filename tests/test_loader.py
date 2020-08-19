@@ -67,6 +67,12 @@ def test_get_flights_blank(monkeypatch):
         (
             [
                 {"price": 20, "booking_token": "A"},
+            ],
+            "A",
+        ),
+        (
+            [
+                {"price": 20, "booking_token": "A"},
                 {"price": 30, "booking_token": "B"},
                 {"price": 15, "booking_token": "C"},
             ],
