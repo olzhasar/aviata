@@ -12,3 +12,11 @@ class NoFlightsFound(Exception):
     """
 
     pass
+
+
+class CheckInProgress(Exception):
+    """
+    Remote API is still processing check
+    """
+
+    pass
