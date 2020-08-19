@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 import requests
 
-from .exceptions import FlightAPIUnavailable, NoFlightsFound
+from .exceptions import CheckInProgress, FlightAPIUnavailable, NoFlightsFound
 from .redis import cache
 from .settings import Settings
 
@@ -42,12 +42,13 @@ def select_cheapest_flight(flights: List[dict]):
 def get_cheapest_flight(
     fly_from: str, fly_to: str, date_from: str, date_to: Optional[str] = None
 ):
+
     flights = get_flights(fly_from, fly_to, date_from, date_to)
 
     return select_cheapest_flight(flights)
 
 
-def check_flight(booking_token: str, pnum: int = 1, bnum: int = 1):
+def verify_flight_not_changed(booking_token: str, pnum: int = 1, bnum: int = 1):
     params = {
         "affily": settings.AFFILY,
         "booking_token": booking_token,
@@ -55,22 +56,17 @@ def check_flight(booking_token: str, pnum: int = 1, bnum: int = 1):
         "bnum": bnum,
     }
 
-    while True:
-        res = requests.get(settings.FLIGHT_CHECK_URL, params=params)
+    res = requests.get(settings.FLIGHT_CHECK_URL, params=params)
 
-        data = res.json()
+    data = res.json()
 
-        if data["flights_checked"]:
-            break
+    if not data["flights_checked"]:
+        raise CheckInProgress
 
-        print(
-            "Flight checking has not finished yet. Retrying in"
-            f" {settings.FLIGHT_CHECK_DELAY} secs"
-        )
+    if data["flights_invalid"] or data["price_change"]:
+        return False
 
-        time.sleep(settings.FLIGHT_CHECK_DELAY)
-
-    return res.json()
+    return True
 
 
 def write_flight_to_cache(
@@ -92,11 +88,22 @@ def write_flight_to_cache(
 def get_flights_from_cache(date: str = ""):
     flights = []
 
-    for key in cache.keys(f"{date}*_token"):
-        token = cache.get(key).decode("utf-8")
-        price_key = key.replace(b"token", b"price")
+    for _key in cache.keys(f"{date}*_token"):
+        key = _key.decode("utf-8")
+        price_key = key.replace("token", "price")
+
+        token = cache.get(key)
         price = float(cache.get(price_key))
-        flights.append({"booking_token": token, "price": price})
+
+        flights.append(
+            {
+                "date_from": key[:10],
+                "fly_from": key[11:14],
+                "fly_to": key[15:18],
+                "booking_token": token,
+                "price": price,
+            }
+        )
 
     return flights
 
