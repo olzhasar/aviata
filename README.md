@@ -19,6 +19,6 @@ sudo docker-compose up --build
 
 - Periodic tasks has been implemented with **celery**, **celery-beat** and **rabbitmq** as a broker.
 
-- General flights loading is scheduled at midnight every day and flight checking is scheduled every subsequent hour.
+- General flights loading is scheduled at midnight every day and flight checking is scheduled every subsequent hour. You can also trigger updates manually via web UI.
 
 - The whole task took approximately 9 working hours
