@@ -29,9 +29,7 @@ def update_all_flights():
 
 
 @app.task(bind=True)
-def check_flight(
-    fly_from: str, fly_to: str, date_from: str, booking_token: str, **kwargs
-):
+def check_flight(self, fly_from: str, fly_to: str, date_from: str, booking_token: str):
     logger.info(f"Verifying flight {fly_from}-{fly_to} on {date_from}")
     try:
         valid = verify_flight_not_changed(booking_token)
@@ -43,11 +41,13 @@ def check_flight(
     if not valid:
         logger.info(f"Flight info outdated. Scheduled update")
         update_flight.delay(fly_from, fly_to, date_from)
+    else:
+        logger.info(f"Flight info is up-to-date")
 
 
 @app.task
 def check_all_flights():
     flights = get_flights_from_cache()
     for flight in flights:
-        params = flight.pop("price")
-        check_flight.delay(**params)
+        flight.pop("price")
+        check_flight.delay(**flight)
