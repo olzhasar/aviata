@@ -1,7 +1,9 @@
+from datetime import date, timedelta
+
 import pytest
 import requests
 from aviata.exceptions import FlightAPIUnavailable, NoFlightsFound
-from aviata.utils import get_flights, select_cheapest_flight
+from aviata.utils import get_flights, get_forward_dates, select_cheapest_flight
 
 
 class MockFailedResponse:
@@ -86,3 +88,16 @@ def test_get_flights_blank(monkeypatch):
 def test_select_cheapest_flight(test_input, expected):
     min_price, token = select_cheapest_flight(test_input)
     assert token == expected
+
+
+def test_get_forward_dates():
+    today = date.today()
+    dates = list(get_forward_dates())
+
+    assert len(dates) == 30
+    assert dates[0] == today
+
+    previous = dates[0]
+    for day in dates[1:]:
+        assert day - previous == timedelta(days=1)
+        previous = day
