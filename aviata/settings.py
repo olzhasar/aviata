@@ -29,12 +29,6 @@ class Settings:
     PARTNER = "picky"
     AFFILY = "picky_kz"
 
-    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
-
-    CELERY_BROKER_URL = os.getenv(
-        "CELERY_BROKER_URL", "amqp://aviata:aviata@rabbitmq:5672//"
-    )
-
     REDIS_HOST = os.getenv("REDIS_HOST", "redis")
     REDIS_PORT = 6379
     REDIS_DB = 0

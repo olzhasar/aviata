@@ -5,6 +5,6 @@ RUN pip install --upgrade pip && pip install -r /requirements.txt
 
 WORKDIR /app
 
-COPY aviata/* /app/
+COPY aviata /app/aviata
 
-CMD ["celery", "-A", "celery_app", "worker"]
+CMD ["celery", "-A", "aviata.celery_app", "worker", "--loglevel=info"]
