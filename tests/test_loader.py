@@ -1,13 +1,7 @@
 import pytest
 import requests
 from exceptions import FlightAPIUnavailable, NoFlightsFound
-from loader import get_flights
-
-TEST_DATA = [
-    {"price": 20, "booking_token": "first"},
-    {"price": 30, "booking_token": "second"},
-    {"price": 11, "booking_token": "third"},
-]
+from loader import get_flights, select_cheapest_flight
 
 
 class MockFailedResponse:
@@ -20,7 +14,11 @@ class MockFailedResponse:
 
 class MockSuccessfulResponse:
     status_code = 200
-    test_data = TEST_DATA
+    test_data = [
+        {"price": 20, "booking_token": "first"},
+        {"price": 30, "booking_token": "second"},
+        {"price": 11, "booking_token": "third"},
+    ]
 
     @classmethod
     def json(cls):
@@ -40,7 +38,7 @@ def test_get_flights_success(monkeypatch):
     flights = get_flights("ALA", "TSE", "14/09/2020")
 
     assert isinstance(flights, list)
-    assert len(flights) == len(TEST_DATA)
+    assert len(flights) == 3
 
 
 def test_get_flights_fail(monkeypatch):
@@ -61,3 +59,29 @@ def test_get_flights_blank(monkeypatch):
 
     with pytest.raises(NoFlightsFound):
         flights = get_flights("ALA", "TSE", "14/09/2020")
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (
+            [
+                {"price": 20, "booking_token": "A"},
+                {"price": 30, "booking_token": "B"},
+                {"price": 15, "booking_token": "C"},
+            ],
+            "C",
+        ),
+        (
+            [
+                {"price": 20.5, "booking_token": "A"},
+                {"price": 20.44, "booking_token": "B"},
+                {"price": 20.98, "booking_token": "C"},
+            ],
+            "B",
+        ),
+    ],
+)
+def test_select_cheapest_flight(test_input, expected):
+    min_price, token = select_cheapest_flight(test_input)
+    assert token == expected
