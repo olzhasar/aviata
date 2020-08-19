@@ -33,15 +33,9 @@ def get_flights(
 
 
 def select_cheapest_flight(flights: List[dict]):
-    min_price = flights[0]["price"]
-    booking_token = flights[0]["booking_token"]
+    cheapest = min(flights, key=lambda x: x["price"])
 
-    for flight in flights[1:]:
-        if flight["price"] < min_price:
-            min_price = flight["price"]
-            booking_token = flight["booking_token"]
-
-    return min_price, booking_token
+    return cheapest["price"], cheapest["booking_token"]
 
 
 def get_cheapest_flight(
