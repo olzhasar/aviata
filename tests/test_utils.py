@@ -10,7 +10,7 @@ class MockFailedResponse:
     status_code = 500
 
     @property
-    def text():
+    def text(self):
         return "API is unavailable. Sorry for inconvinience"
 
 
@@ -50,7 +50,7 @@ def test_get_flights_fail(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
     with pytest.raises(FlightAPIUnavailable):
-        flights = get_flights("ALA", "TSE", "14/09/2020")
+        get_flights("ALA", "TSE", "14/09/2020")
 
 
 def test_get_flights_blank(monkeypatch):
@@ -60,13 +60,13 @@ def test_get_flights_blank(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
     with pytest.raises(NoFlightsFound):
-        flights = get_flights("ALA", "TSE", "14/09/2020")
+        get_flights("ALA", "TSE", "14/09/2020")
 
 
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        ([{"price": 20, "booking_token": "A"},], "A",),
+        ([{"price": 20, "booking_token": "A"}], "A",),
         (
             [
                 {"price": 20, "booking_token": "A"},
