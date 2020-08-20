@@ -1,7 +1,7 @@
 from celery.utils.log import get_task_logger
 
 from aviata.celery_app import app
-from aviata.exceptions import CheckInProgress
+from aviata.exceptions import CheckInProgress, FlightAPIUnavailable
 from aviata.settings import Settings
 from aviata.utils import (
     get_cheapest_flight,
@@ -14,11 +14,14 @@ from aviata.utils import (
 logger = get_task_logger(__name__)
 
 
-@app.task
-def update_flight(fly_from: str, fly_to: str, date_from: str):
+@app.task(
+    bind=True, autoretry_for=(FlightAPIUnavailable,), retry_kwargs={"max_retries": 5}
+)
+def update_flight(self, fly_from: str, fly_to: str, date_from: str):
     logger.info(f"Requesting flights for {fly_from}-{fly_to} on {date_from}")
     price, booking_token = get_cheapest_flight(fly_from, fly_to, date_from)
     write_flight_to_cache(fly_from, fly_to, date_from, booking_token, price)
+    logger.info("Flight info updated")
 
 
 @app.task
@@ -28,7 +31,9 @@ def update_all_flights():
             update_flight.delay(row[0], row[1], day.strftime("%d/%m/%Y"))
 
 
-@app.task(bind=True)
+@app.task(
+    bind=True, autoretry_for=(FlightAPIUnavailable,), retry_kwargs={"max_retries": 5}
+)
 def check_flight(self, fly_from: str, fly_to: str, date_from: str, booking_token: str):
     logger.info(f"Verifying flight {fly_from}-{fly_to} on {date_from}")
     try:
@@ -39,10 +44,10 @@ def check_flight(self, fly_from: str, fly_to: str, date_from: str, booking_token
         )
         self.retry(exc=exc, countdown=Settings.FLIGHT_CHECK_DELAY)
     if not valid:
-        logger.info(f"Flight info outdated. Scheduled update")
+        logger.warning("Flight info outdated. Scheduled update")
         update_flight.delay(fly_from, fly_to, date_from)
     else:
-        logger.info(f"Flight info is up-to-date")
+        logger.info("Flight info is up-to-date")
 
 
 @app.task

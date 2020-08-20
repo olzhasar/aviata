@@ -1,4 +1,3 @@
-import time
 from datetime import date, timedelta
 from typing import List, Optional, Union
 
@@ -57,6 +56,9 @@ def verify_flight_not_changed(booking_token: str, pnum: int = 1, bnum: int = 1):
     }
 
     res = requests.get(Settings.FLIGHT_CHECK_URL, params=params)
+
+    if res.status_code != 200:
+        raise FlightAPIUnavailable(res.text)
 
     data = res.json()
 
